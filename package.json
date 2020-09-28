@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/johncabang/tinyapp/issues"
   },
-  "homepage": "https://github.com/johncabang/tinyapp#readme"
+  "homepage": "https://github.com/johncabang/tinyapp#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
 }
