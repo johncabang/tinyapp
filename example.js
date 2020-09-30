@@ -45,20 +45,39 @@ console.log(usersUrl);
 
 
 
-const addNewUser = (usersDb, email, password) => {
- // create a random user id
-const userId = generateRandomString();
- // create a new user object
-const newUserObj = {
-  id: userId,
-  email: email,
-  passowrd: password
+// const addNewUser = (usersDb, email, password) => {
+//  // create a random user id
+// const userId = generateRandomString();
+//  // create a new user object
+// const newUserObj = {
+//   id: userId,
+//   email: email,
+//   passowrd: password
+// }
+//  // add the new user object to usersDb
+// usersDb[userId] = newUserObj;
+
+// return userId;
+
+// }
+
+// addNewUser(users, 'bob@sq.com', 'test');
+
+
+const addNewUser = (users, email, password) => {
+  // create a random user id
+ const userId = generateRandomString();
+  // create a new user object
+ const newUserObj = {
+   id: userId,
+   email: email,
+   passowrd: password
+ }
+  // add the new user object to usersDb
+ users[userId] = newUserObj;
+ 
+ return userId;
+ 
 }
- // add the new user object to usersDb
-usersDb[userId] = newUserObj;
-
-return userId;
-
-}
-
-addNewUser(users, 'bob@sq.com', 'test');
+ 
+addNewUser(users, 'minimalist@gmail.com', 'lipbalm-boy');

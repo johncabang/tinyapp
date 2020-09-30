@@ -18,6 +18,19 @@ const urlDatabase = {
   '9sm5xK': 'http://www.google.ca'
 };
 
+const users = {
+  'userRandomID': {
+    id: 'userRandomID',
+    email: 'user@example.com',
+    password: 'purple-monkey-dinosaur'
+  },
+  'user2RandomID': {
+    id: 'user2RandomID',
+    email: 'user2@example.com',
+    password: 'dishwasher-funk'
+  }
+}
+
 // urls = key
 app.get('/urls', (req, res) => {
   const templateVars = { username: req.cookies["username"], urls: urlDatabase };
@@ -61,12 +74,31 @@ app.post('/urls', (req, res) => {
   res.redirect(`/urls/${shortURL}`);
 });
 
-// // register
-// app.post('/register', (req, res) => {
-//   const { email, password } = req.body
+// const users = {
+//   'userRandomID': {
+//     id: 'userRandomID',
+//     email: 'user@example.com',
+//     password: 'purple-monkey-dinosaur'
+//   },
+//   'user2RandomID': {
+//     id: 'user2RandomID',
+//     email: 'user2@example.com',
+//     password: 'dishwasher-funk'
+//   }
+// }
 
-//   res.redirect('/urls');
-// })
+// register
+app.post('/register', (req, res) => {  
+  const userId = generateRandomString();
+  res.cookie('user_id', userId);
+  users[userId] = {
+    id: userId,
+    email: req.body.email,
+    passowrd: req.body.passowrd
+  }
+// console.log(users);
+  res.redirect('/urls');
+})
 
 // login
 app.post('/login', (req, res) => {
