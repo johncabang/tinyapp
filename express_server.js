@@ -1,10 +1,11 @@
 const express = require('express');
 const app = express();
 const PORT = 8080;
-
+const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
-app.use(bodyParser.urlencoded({extended: true}));
 
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(cookieParser());
 app.set('view engine', 'ejs');
 
 function generateRandomString() {
@@ -34,6 +35,12 @@ app.get('/urls/:shortURL', (req, res) => {
   res.render('urls_show', templateVars);
 });
 
+// redirect shortURL to longURL
+app.get('/u/:shortURL', (req, res) => {
+  const longURL = urlDatabase[req.params.shortURL];
+  res.redirect(longURL);
+});
+
 // app.get('/urls.json', (req, res) => {
 //   res.json(urlDatabase);
 // });
@@ -47,11 +54,11 @@ app.post('/urls', (req, res) => {
   res.redirect(`/urls/${shortURL}`);
 });
 
-// redirect shortURL to longURL
-app.get('/u/:shortURL', (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
-  res.redirect(longURL);
-});
+// login
+app.post('/login', (req, res) => {
+  res.cookie('username', req.body.username);
+  res.redirect('/urls');
+})
 
 // update
 app.post('/urls/:shortURL/update', (req, res) => {
