@@ -42,6 +42,12 @@ app.get('/u/:shortURL', (req, res) => {
   res.redirect(longURL);
 });
 
+// registration page
+app.get('/register', (req, res) => {
+  const templateVars = { username: req.cookies["username"]}
+  res.render('urls_register', templateVars);
+})
+
 // app.get('/urls.json', (req, res) => {
 //   res.json(urlDatabase);
 // });
@@ -54,6 +60,13 @@ app.post('/urls', (req, res) => {
   urlDatabase[shortURL] = req.body.longURL;
   res.redirect(`/urls/${shortURL}`);
 });
+
+// // register
+// app.post('/register', (req, res) => {
+//   const { email, password } = req.body
+
+//   res.redirect('/urls');
+// })
 
 // login
 app.post('/login', (req, res) => {
