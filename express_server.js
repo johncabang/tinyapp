@@ -3,6 +3,7 @@ const app = express();
 const PORT = 8080;
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
+const bcrypt = require('bcrypt');
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
@@ -27,7 +28,7 @@ const verifyEmail = function(userDatabase, email) {
 // Verify password
 const verifyPassword = function(userDatabase, email, password) {
   const userFound = verifyEmail(userDatabase, email);
-  if (userFound && userFound.password === password) {
+  if (userFound && bcrypt.compareSync(password, userFound.password)) {
     return userFound;
   }
   return false;
@@ -153,7 +154,7 @@ app.post('/register', (req, res) => {
     users[userId] = {
       id: userId,
       email: req.body.email,
-      password: req.body.password
+      password: bcrypt.hashSync(password, 10)
     };
     res.cookie('user_id', userId);
     console.log(users[userId].email);
