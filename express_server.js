@@ -35,14 +35,6 @@ const users = {
   }
 };
 
-// Register account page
-app.get('/register', (req, res) => {
-  const templateVars = {
-    user: users[req.session.user_id],
-  };
-  res.render('urls_register', templateVars);
-});
-
 // Log in account page
 app.get('/login', (req, res) => {
   const templateVars = {
@@ -51,13 +43,25 @@ app.get('/login', (req, res) => {
   res.render('urls_login', templateVars);
 });
 
+// Register account page
+app.get('/register', (req, res) => {
+  const templateVars = {
+    user: users[req.session.user_id],
+  };
+  res.render('urls_register', templateVars);
+});
+
 // URLs page previewing user created URLs
 app.get('/urls', (req, res) => {
   const templateVars = {
     user: users[req.session.user_id],
     urls: urlsForUser(urlDatabase, req.session.user_id)
   };
-  res.render('urls_index', templateVars);
+  if (templateVars.user) {
+    // res.render('urls_new', templateVars);
+    res.render('urls_index', templateVars);
+  } else
+    res.redirect('/login');
 });
 
 // Create a new URL page to generate a short URL
@@ -87,6 +91,18 @@ app.get('/urls/:shortURL', (req, res) => {
   res.render('urls_show', templateVars);
 });
 
+// Login page for registered users
+app.post('/login', (req, res) => {
+  const { email, password } = req.body;
+  let userPassword = verifyPassword(users, email, password);
+  if (userPassword) {
+    req.session.user_id = userPassword.id;
+    res.redirect('/urls');
+  } else {
+    res.status(403);
+    res.send('Email and password is not valid');
+  }
+});
 
 // Registration - Create an account
 app.post('/register', (req, res) => {
@@ -110,33 +126,10 @@ app.post('/register', (req, res) => {
   }
 });
 
-// Login page for registered users
-app.post('/login', (req, res) => {
-  const { email, password } = req.body;
-  let userPassword = verifyPassword(users, email, password);
-  if (userPassword) {
-    req.session.user_id = userPassword.id;
-    res.redirect('/urls');
-  } else {
-    res.status(403);
-    res.send('Email and password is not valid');
-  }
-});
-
 // Logout of account
 app.post('/logout', (req, res) => {
   req.session.user_id = null;
   res.redirect('/login');
-});
-
-// Update URL page
-app.post('/urls/:shortURL/update', (req, res) => {
-  let shortURL = req.params.shortURL;
-  urlDatabase[shortURL] = {
-    longURL: req.body.updatedLongURL,
-    userID: req.session.user_id
-  };
-  res.redirect(`/urls`);
 });
 
 // Generates a new short URL
@@ -151,6 +144,16 @@ app.post('/urls', (req, res) => {
   } else {
     res.redirect('/login');
   }
+});
+
+// Update URL page
+app.post('/urls/:shortURL/update', (req, res) => {
+  let shortURL = req.params.shortURL;
+  urlDatabase[shortURL] = {
+    longURL: req.body.updatedLongURL,
+    userID: req.session.user_id
+  };
+  res.redirect(`/urls`);
 });
 
 // Option to delete URLs
