@@ -126,7 +126,7 @@ app.post('/login', (req, res) => {
 // Logout of account
 app.post('/logout', (req, res) => {
   req.session.user_id = null;
-  res.redirect('/urls');
+  res.redirect('/login');
 });
 
 // Update URL page
