@@ -1,44 +1,58 @@
 const express = require('express');
 const app = express();
-const PORT = 8080;
-// const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const cookieSession = require('cookie-session');
+const PORT = 8080;
 
 const { generateRandomString, verifyEmail, verifyPassword, urlsForUser } = require('./helpers');
-app.set('view engine', 'ejs');
 
+app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
-// app.use(cookieParser());
 app.use(cookieSession({
   name: 'session',
   keys: [ '9671111711aefasdv44c4cfcfr5', 'sfggfdgrg43534gdfd987678875456' ],
 }));
 
+// Users & URL database
 
 const urlDatabase = {
   b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
   i3BoGr: { longURL: "https://www.google.ca", userID: "abc34d" },
   s34edr: { longURL: "https://www.yahoo.ca", userID: "f43faf" }
-
 };
 
 const users = {
-  // 'userRandomID': {
-  //   id: 'userRandomID',
-  //   email: 'user@example.com',
-  //   password: 'purple-monkey-dinosaur'
-  // },
-  // 'user2RandomID': {
-  //   id: 'user2RandomID',
-  //   email: 'user2@example.com',
-  //   password: 'dishwasher-funk'
-  // }
+  'userRandomID': {
+    id: 'userRandomID',
+    email: 'user@example.com',
+    password: 'purple-monkey-dinosaur'
+  },
+  'user2RandomID': {
+    id: 'user2RandomID',
+    email: 'user2@example.com',
+    password: 'dishwasher-funk'
+  }
 };
 
+// Register account page
+app.get('/register', (req, res) => {
+  const templateVars = {
+    user: users[req.session.user_id],
+  };
+  res.render('urls_register', templateVars);
+});
+
+// Log in account page
+app.get('/login', (req, res) => {
+  const templateVars = {
+    user: users[req.session.user_id],
+  };
+  res.render('urls_login', templateVars);
+});
+
+// URLs page previewing user created URLs
 app.get('/urls', (req, res) => {
-  // console.log(urlDatabase['b6UTxQ'].longURL);
   const templateVars = {
     user: users[req.session.user_id],
     urls: urlsForUser(urlDatabase, req.session.user_id)
@@ -46,12 +60,11 @@ app.get('/urls', (req, res) => {
   res.render('urls_index', templateVars);
 });
 
-// GET route to show the form, then renders(server side) page
+// Create a new URL page to generate a short URL
 app.get('/urls/new', (req, res) => {
   const templateVars = {
     user: users[req.session.user_id],
     ursl: urlDatabase
-    // urls: urlsForUser(urlDatabase, req.session.user_id)
   };
   if (templateVars.user) {
     res.render('urls_new', templateVars);
@@ -59,7 +72,12 @@ app.get('/urls/new', (req, res) => {
     res.redirect('/login');
 });
 
-// Displays a single URL and its shortened form
+// Link to long URL when short URL link is clicked
+app.get('/u/:shortURL', (req, res) => {
+  const longURL = urlDatabase[req.params.shortURL].longURL;
+  res.redirect(longURL);
+});
+
 app.get('/urls/:shortURL', (req, res) => {
   const templateVars = {
     user: users[req.session.user_id],
@@ -69,47 +87,11 @@ app.get('/urls/:shortURL', (req, res) => {
   res.render('urls_show', templateVars);
 });
 
-// Redirect shortURL to longURL
-app.get('/u/:shortURL', (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL].longURL;
-  res.redirect(longURL);
-});
 
-// Registration page
-app.get('/register', (req, res) => {
-  const templateVars = {
-    user: users[req.session.user_id],
-  };
-  res.render('urls_register', templateVars);
-});
-
-// Login page
-app.get('/login', (req, res) => {
-  const templateVars = {
-    user: users[req.session.user_id],
-  };
-  res.render('urls_login', templateVars);
-});
-
-// Post route, form submission - creates a new shortURL, add to database, redirects to /urls/:shortURL
-app.post('/urls', (req, res) => {
-  if (req.session.user_id) {
-    const shortURL = generateRandomString();
-    urlDatabase[shortURL] = {
-      longURL: req.body.longURL,
-      userID: req.session.user_id
-    };
-    res.redirect(`/urls/${shortURL}`);
-  } else {
-    res.redirect('/login');
-  }
-});
-
-// Registration page
+// Registration - Create an account
 app.post('/register', (req, res) => {
   const { email, password } = req.body;
   let user = verifyEmail(users, email);
-
   if ((!email) || (!password)) {
     res.status(400);
     res.send('Please provide a valid email and password');
@@ -124,20 +106,14 @@ app.post('/register', (req, res) => {
       password: bcrypt.hashSync(password, 10)
     };
     req.session.user_id = userId;
-    console.log(users[userId].email);
-    console.log(users[userId]);
     res.redirect('/urls');
   }
 });
 
-// Login page
+// Login page for registered users
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
-  // let user = verifyEmail(users, email);
   let userPassword = verifyPassword(users, email, password);
-  // console.log('***' + user);
-  console.log('^^^' + JSON.stringify(userPassword));
-
   if (userPassword) {
     req.session.user_id = userPassword.id;
     res.redirect('/urls');
@@ -147,32 +123,41 @@ app.post('/login', (req, res) => {
   }
 });
 
-// Logout
+// Logout of account
 app.post('/logout', (req, res) => {
   req.session.user_id = null;
   res.redirect('/urls');
 });
 
-// Update
+// Update URL page
 app.post('/urls/:shortURL/update', (req, res) => {
   let shortURL = req.params.shortURL;
   urlDatabase[shortURL] = {
     longURL: req.body.updatedLongURL,
     userID: req.session.user_id
   };
-  console.log('***------    ' + req.body.updatedLongURL);
   res.redirect(`/urls`);
 });
 
-// Delete
+// Generates a new short URL
+app.post('/urls', (req, res) => {
+  if (req.session.user_id) {
+    const shortURL = generateRandomString();
+    urlDatabase[shortURL] = {
+      longURL: req.body.longURL,
+      userID: req.session.user_id
+    };
+    res.redirect(`/urls/${shortURL}`);
+  } else {
+    res.redirect('/login');
+  }
+});
+
+// Option to delete URLs
 app.post('/urls/:shortURL/delete', (req, res) => {
   delete urlDatabase[req.params.shortURL];
   res.redirect('/urls');
 });
-
-// app.get('/urls.json', (req, res) => {
-//   res.json(urlDatabase);
-// });
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
