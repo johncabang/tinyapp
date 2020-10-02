@@ -12,20 +12,20 @@
     </div>
       
      
-    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+    <!-- <div class="collapse navbar-collapse" id="navbarNavAltMarkup"> -->
       <% if (!user) { %>
-        <div class="navbar-nav mr-auto">
+        <div class="navbar-nav mr-auto ">
         <a class="nav-item nav-link" href="/register">Register</a>
         <a class="nav-item nav-link" href="/login">Login</a>
       </div>  
     </div> 
       <% } else { %>  
-        <div class="navbar-nav">Logged in As: <%= user.email %></div>
+        <div class="navbar-nav" style="color:white;">Logged in As: <%= user.email %> &nbsp;&nbsp;</div>
         <form class="form-inline" action="/logout" method="POST">       
-          <button type="submit" class="btn btn-outline-dark">Logout</button>
+          <button type="submit" class="btn btn-outline-light btn-sm">Logout</button>
         </form>
       
-    </div>
+    <!-- </div> -->
     <% } %>
 
   </nav>

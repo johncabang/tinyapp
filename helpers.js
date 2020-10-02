@@ -10,7 +10,6 @@ const generateRandomString = function() {
   return randomString;
 };
 
-
 // Verify email
 const verifyEmail = function(userDatabase, email) {
   for (let user in userDatabase) {
@@ -42,5 +41,8 @@ const urlsForUser = (userDatabase, users) => {
   // console.log(results)
   return results;
 };
+
+// urlsForUser(urlDatabase, 'abcd')
+
 
 module.exports = { generateRandomString, verifyEmail, verifyPassword, urlsForUser };

@@ -17,9 +17,6 @@ app.use(cookieSession({
 }));
 
 
-
-// urlsForUser(urlDatabase, 'abcd')
-
 const urlDatabase = {
   b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
   i3BoGr: { longURL: "https://www.google.ca", userID: "abc34d" },
@@ -28,19 +25,18 @@ const urlDatabase = {
 };
 
 const users = {
-  'userRandomID': {
-    id: 'aJ48lW',
-    email: 'user@example.com',
-    password: 'purple-monkey-dinosaur'
-  },
-  'user2RandomID': {
-    id: 'user2RandomID',
-    email: 'user2@example.com',
-    password: 'dishwasher-funk'
-  }
+  // 'userRandomID': {
+  //   id: 'userRandomID',
+  //   email: 'user@example.com',
+  //   password: 'purple-monkey-dinosaur'
+  // },
+  // 'user2RandomID': {
+  //   id: 'user2RandomID',
+  //   email: 'user2@example.com',
+  //   password: 'dishwasher-funk'
+  // }
 };
 
-// Urls = key
 app.get('/urls', (req, res) => {
   // console.log(urlDatabase['b6UTxQ'].longURL);
   const templateVars = {
@@ -75,7 +71,7 @@ app.get('/urls/:shortURL', (req, res) => {
 
 // Redirect shortURL to longURL
 app.get('/u/:shortURL', (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL].long;
+  const longURL = urlDatabase[req.params.shortURL].longURL;
   res.redirect(longURL);
 });
 
@@ -159,13 +155,12 @@ app.post('/logout', (req, res) => {
 
 // Update
 app.post('/urls/:shortURL/update', (req, res) => {
-  // console.log(req.body.updatedLongURL)
   let shortURL = req.params.shortURL;
   urlDatabase[shortURL] = {
-    longURL: urlDatabase[req.params.shortURL],
+    longURL: req.body.updatedLongURL,
     userID: req.session.user_id
   };
-  console.log('***    ' + urlDatabase[req.params.shortURL]);
+  console.log('***------    ' + req.body.updatedLongURL);
   res.redirect(`/urls`);
 });
 
