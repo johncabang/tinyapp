@@ -35,6 +35,18 @@ const users = {
   }
 };
 
+// Homepage to urls if logged in otherwise to login page
+app.get('/', (req, res) => {
+  const templateVars = {
+    user: users[req.session.user_id],
+    urls: urlsForUser(urlDatabase, req.session.user_id)
+  };
+  if (templateVars.user) {
+    res.render('urls', templateVars);
+  } else
+    res.redirect('/login');
+});
+
 // Log in account page
 app.get('/login', (req, res) => {
   const templateVars = {
@@ -58,7 +70,6 @@ app.get('/urls', (req, res) => {
     urls: urlsForUser(urlDatabase, req.session.user_id)
   };
   if (templateVars.user) {
-    // res.render('urls_new', templateVars);
     res.render('urls_index', templateVars);
   } else
     res.redirect('/login');
@@ -68,7 +79,7 @@ app.get('/urls', (req, res) => {
 app.get('/urls/new', (req, res) => {
   const templateVars = {
     user: users[req.session.user_id],
-    ursl: urlDatabase
+    urls: urlDatabase
   };
   if (templateVars.user) {
     res.render('urls_new', templateVars);
@@ -78,6 +89,10 @@ app.get('/urls/new', (req, res) => {
 
 // Link to long URL when short URL link is clicked
 app.get('/u/:shortURL', (req, res) => {
+  if (!urlDatabase[req.params.shortURL]) {
+    res.status(404);
+    return res.send('404 Page Not Found');
+  }
   const longURL = urlDatabase[req.params.shortURL].longURL;
   res.redirect(longURL);
 });
@@ -88,7 +103,11 @@ app.get('/urls/:shortURL', (req, res) => {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL].longURL
   };
-  res.render('urls_show', templateVars);
+  if (req.session.user_id === urlDatabase[req.params.shortURL].userID) {
+    res.render("urls_show", templateVars);
+  } else {
+    res.send("Permission Denied");
+  }
 });
 
 // Login page for registered users

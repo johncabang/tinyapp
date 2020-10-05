@@ -1,9 +1,6 @@
 const bcrypt = require('bcrypt');
 
-
-
 // Helper Functions
-
 
 const generateRandomString = function() {
   let randomString = Math.random().toString(36).substring(2, 8);
@@ -38,11 +35,7 @@ const urlsForUser = (userDatabase, users) => {
       results[key] = urlObj;
     }
   }
-  // console.log(results)
   return results;
 };
-
-// urlsForUser(urlDatabase, 'abcd')
-
 
 module.exports = { generateRandomString, verifyEmail, verifyPassword, urlsForUser };
